@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const path = require('path'); // Tambahkan di atas, bersama require lainnya
 
 const app = express();
 const port = process.env.PORT || 3000;
