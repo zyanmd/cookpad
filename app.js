@@ -5,9 +5,9 @@ const cheerio = require('cheerio');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Set EJS sebagai view engine
+// Set EJS sebagai view engine dengan path absolut
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
+app.set('views', path.join(__dirname, 'views')); // <- pastikan ini ada
 
 // Class Cookpad (sama seperti yang Anda berikan)
 class Cookpad {
