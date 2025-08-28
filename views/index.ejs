@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Temukan ribuan resep masakan Indonesia dan internasional dari Cookpad. Cari resep berdasarkan bahan, waktu masak, dan tingkat kesulitan.">
+    <meta name="keywords" content="resep, masakan, cookpad, makanan, resep masakan, resep Indonesia, memasak">
+    <meta name="author" content="Cookpad Search">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/">
+    <meta property="og:title" content="Pencarian Resep Cookpad - Temukan Resep Favorit Anda">
+    <meta property="og:description" content="Temukan ribuan resep masakan dari Cookpad. Cari resep berdasarkan bahan, waktu masak, dan tingkat kesulitan.">
+    <meta property="og:image" content="https://example.com/images/og-image.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://example.com/">
+    <meta property="twitter:title" content="Pencarian Resep Cookpad - Temukan Resep Favorit Anda">
+    <meta property="twitter:description" content="Temukan ribuan resep masakan dari Cookpad. Cari resep berdasarkan bahan, waktu masak, dan tingkat kesulitan.">
+    <meta property="twitter:image" content="https://example.com/images/twitter-image.jpg">
+    
+    <title>Pencarian Resep Cookpad - Temukan Resep Favorit Anda</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for animations -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .ingredient-fade {
+            animation: ingredientFade 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes ingredientFade {
+            from { 
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .loading-dots:after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* Custom gradient background */
+        .bg-gradient-food {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header Section -->
+    <header class="bg-gradient-food text-white shadow-md">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col items-center fade-in">
+                <h1 class="text-4xl font-bold mb-2 flex items-center">
+                    <span class="mr-2">🍳</span> Pencarian Resep Cookpad
+                </h1>
+                <p class="text-lg text-white/90">Temukan resep masakan favorit Anda dengan mudah</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Search Form -->
+        <section class="max-w-2xl mx-auto mb-12 slide-up">
+            <form action="/search" method="GET" class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex flex-col md:flex-row gap-2">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="<%= query || '' %>"
+                        placeholder="Cari resep (contoh: ayam kecap, nasi goreng, brownies)" 
+                        class="flex-grow px-5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all"
+                        required
+                        x-data
+                        x-on:focus="$el.parentElement.classList.add('ring-2', 'ring-orange-300', 'rounded-lg')"
+                        x-on:blur="$el.parentElement.classList.remove('ring-2', 'ring-orange-300', 'rounded-lg')"
+                    >
+                    <button 
+                        type="submit" 
+                        class="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center font-medium pulse"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Cari Resep
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-3">Tips: Gunakan kata kunci spesifik untuk hasil yang lebih akurat</p>
+            </form>
+        </section>
+
+        <!-- Error Message -->
+        <% if (error) { %>
+            <div class="max-w-2xl mx-auto bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-8 fade-in">
+                <div class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p>Error: <%= error %></p>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Recipe Results -->
+        <% if (recipes && recipes.length > 0) { %>
+            <section x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 100)">
+                <div class="mb-8 slide-up">
+                    <h2 class="text-2xl font-semibold text-gray-800">
+                        Hasil pencarian untuk "<span class="text-orange-500"><%= query %></span>"
+                    </h2>
+                    <p class="text-gray-600"><%= recipes.length %> resep ditemukan</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% recipes.forEach((recipe, index) => { %>
+                        <div 
+                            class="bg-white rounded-xl shadow-md overflow-hidden card-hover fade-in" 
+                            :style="loaded ? 'opacity: 1; transform: translateY(0);' : 'opacity: 0; transform: translateY(20px);'"
+                            style="transition: opacity 0.5s ease <%= index * 0.1 %>s, transform 0.5s ease <%= index * 0.1 %>s;"
+                        >
+                            <% if (recipe.imageUrl) { %>
+                                <div class="relative overflow-hidden h-48">
+                                    <img 
+                                        src="<%= recipe.imageUrl %>" 
+                                        alt="<%= recipe.title %>" 
+                                        class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                                        onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22300%22 height%3D%22200%22 viewBox%3D%220 0 300 200%22%3E%3Crect fill%3D%22%23f3f4f6%22 width%3D%22300%22 height%3D%22200%22%2F%3E%3Ctext fill%3D%22%239ca3af%22 font-family%3D%22sans-serif%22 font-size%3D%2220%22 dy%3D%22.35em%22 text-anchor%3D%22middle%22 x%3D%22150%22 y%3D%22100%22%3EGambar Tidak Tersedia%3C%2Ftext%3E%3C%2Fsvg%3E'"
+                                    >
+                                    <div class="absolute top-0 left-0 bg-orange-500 text-white text-xs font-semibold px-2 py-1 m-2 rounded">
+                                        Resep
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                    <span class="text-gray-400">Gambar tidak tersedia</span>
+                                </div>
+                            <% } %>
+                            
+                            <div class="p-5">
+                                <h3 class="font-semibold text-lg mb-2 text-gray-800 hover:text-orange-500 transition-colors line-clamp-2">
+                                    <a href="/recipe/<%= recipe.id %>"><%= recipe.title %></a>
+                                </h3>
+                                
+                                <div class="text-sm text-gray-600 mb-4">
+                                    <div class="flex items-center mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        <span>Oleh: <%= recipe.author || 'Tidak diketahui' %></span>
+                                    </div>
+                                    
+                                    <% if (recipe.prepTime) { %>
+                                        <div class="flex items-center mb-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>Waktu: <%= recipe.prepTime %></span>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <% if (recipe.servings) { %>
+                                        <div class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                            <span>Porsi: <%= recipe.servings %></span>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                
+                                <% if (recipe.ingredients && recipe.ingredients.length > 0) { %>
+                                    <div class="mb-4">
+                                        <h4 class="font-medium text-gray-700 mb-2 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                            </svg>
+                                            Bahan-bahan:
+                                        </h4>
+                                        <p class="text-sm text-gray-600">
+                                            <%= recipe.ingredients.slice(0, 3).join(', ') %>
+                                            <% if (recipe.ingredients.length > 3) { %>...<% } %>
+                                        </p>
+                                    </div>
+                                <% } %>
+                                
+                                <a 
+                                    href="/recipe/<%= recipe.id %>" 
+                                    class="block text-center bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors font-medium flex items-center justify-center"
+                                >
+                                    Lihat Resep Lengkap
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </section>
+        <% } else if (recipes && recipes.length === 0) { %>
+            <section class="max-w-2xl mx-auto text-center py-12 fade-in">
+                <div class="bg-white rounded-xl shadow-sm p-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Tidak ada resep ditemukan</h3>
+                    <p class="text-gray-600 mb-4">Tidak ada resep ditemukan untuk "<span class="text-orange-500"><%= query %></span>". Coba kata kunci lain.</p>
+                    <a href="/" class="inline-block bg-orange-500 text-white px-5 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+                        Cari Resep Lain
+                    </a>
+                </div>
+            </section>
+        <% } else { %>
+            <section class="max-w-2xl mx-auto text-center py-12 fade-in">
+                <div class="bg-white rounded-xl shadow-sm p-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-orange-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Temukan Resep Favorit Anda</h3>
+                    <p class="text-gray-600">Masukkan kata kunci di atas untuk mencari resep masakan dari Cookpad.</p>
+                    <div class="mt-6 bg-gray-100 rounded-lg p-4 text-left max-w-md mx-auto">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Contoh pencarian:</p>
+                        <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                            <li>Ayam kecap</li>
+                            <li>Nasi goreng spesial</li>
+                            <li>Kue bolu coklat</li>
+                            <li>Sayur sop ayam</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        <% } %>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <p>&copy; 2023 Pencarian zyann. Semua hak cipta dilindungi.</p>
+                <p class="text-gray-400 text-sm mt-2">Website ini menggunakan API dari Cookpad untuk menampilkan resep-resep masakan.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JSON-LD Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Pencarian Resep Cookpad",
+        "description": "Temukan ribuan resep masakan Indonesia dan internasional dari Cookpad",
+        "applicationCategory": "FoodApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "IDR"
+        }
+    }
+    </script>
+</body>
+</html>
